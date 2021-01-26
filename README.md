@@ -18,26 +18,40 @@ https://archive.apache.org/dist/tomcat/
 https://www.tqwba.com/x_d/jishu/6220.html
 
 ### 控制台乱码问题
+修改两个类，如下：
 org.apache.tomcat.util.res.StringManager类
-public String getString(final String key, final Object... args) {
+```java
+public class StringManager {
+    // ......
+
+    public String getString(final String key, final Object... args) {
         String value = getString(key);
         if (value == null) {
             value = key;
         }
-        try{
-            value = new String(value.getBytes("ISO-8859-1"),"UTF-8");
-        }catch (Exception e ){
+
+        // 控制台乱码问题
+        try {
+            value = new String(value.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (Exception e) {
             e.printStackTrace();
         }
- 
+
         MessageFormat mf = new MessageFormat(value);
         mf.setLocale(locale);
         return mf.format(args, new StringBuffer(), null).toString();
     }
 
-org.apache.jasper.compiler.Localizer类
+    // ......
+}
+```
 
-public static String getMessage(String errCode) {
+org.apache.jasper.compiler.Localizer类
+```java
+public class Localizer {
+    // ......
+
+    public static String getMessage(String errCode) {
         String errMsg = errCode;
         try {
             if (bundle != null) {
@@ -45,10 +59,16 @@ public static String getMessage(String errCode) {
             }
         } catch (MissingResourceException e) {
         }
-        try{
-            errMsg = new String(errMsg.getBytes("ISO-8859-1"),"UTF-8");
-        }catch (Exception e ){
+
+        // 控制台乱码问题
+        try {
+            errMsg = new String(errMsg.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return errMsg;
     }
+
+    // ......
+}
+```
