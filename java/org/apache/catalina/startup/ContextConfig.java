@@ -778,6 +778,11 @@ public class ContextConfig implements LifecycleListener {
 
         webConfig();
 
+        // 直接访问 http://localhost:8080 报错，后端空指针异常
+        // 原因是直接启动org.apache.catalina.startup.Bootstrap时，
+        // 没有加载org.apache.jasper.servlet.JasperInitializer，从而无法编译JSP。
+        context.addServletContainerInitializer(new JasperInitializer(),null);
+
         if (!context.getIgnoreAnnotations()) {
             applicationAnnotationsConfig();
         }
